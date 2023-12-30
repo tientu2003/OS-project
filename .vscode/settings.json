@@ -1,0 +1,8 @@
+{
+    "files.associations": {
+        "jbd2.h": "c",
+        "bvec.h": "c",
+        "highmem.h": "c",
+        "cacheflush.h": "c"
+    }
+}
