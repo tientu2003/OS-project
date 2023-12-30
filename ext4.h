@@ -4,6 +4,21 @@ typedef uint32_t __le32;
 typedef uint16_t __le16;
 typedef uint8_t __u8;
 typedef uint64_t __le64;
+
+
+/* data type for block offset of block group */
+typedef int ext4_grpblk_t;
+
+/* data type for filesystem-wide blocks number */
+typedef unsigned long long ext4_fsblk_t;
+
+/* data type for file logical block number */
+typedef uint32_t ext4_lblk_t;
+
+/* data type for block group number */
+typedef unsigned int ext4_group_t;
+
+
 struct ext4_super_block {
 /*00*/  __le32  s_inodes_count;         /* Inodes count */
         __le32  s_blocks_count_lo;      /* Blocks count */
@@ -132,3 +147,30 @@ struct ext4_super_block {
         __le32  s_reserved[95];         /* Padding to the end of the block */
         __le32  s_checksum;             /* crc32c(Superblock) */
 };
+
+ext4_super_block ext4sb;
+//example inodes
+struct inodes {
+        int name;
+        int size;
+};
+inodes *arrayinodes; 
+int create_ext4(){
+        ext4sb.s_inodes_count = 100;
+        arrayinodes = (inodes*) malloc (sizeof(inodes)*ext4sb.s_inodes_count);
+        for(int i = 0; i< ext4sb.s_inodes_count; i++){
+                arrayinodes[i].name = i;
+                arrayinodes[i].size = -1; 
+        }
+        return 0;
+}
+
+int sync_ext4(){
+        FILE *f = fopen("filesystem.txt","w");
+        fwrite(&ext4sb,sizeof(struct ext4_super_block),1,f);
+        for(int i =0; i< ext4sb.s_inodes_count;i++){
+                fwrite(&arrayinodes[i],sizeof(struct inodes),1,f);
+        }
+        fclose(f);
+        return 0;
+}
