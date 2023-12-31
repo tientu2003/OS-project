@@ -166,7 +166,7 @@ int create_ext4(){
 }
 
 int sync_ext4(){
-        FILE *f = fopen("filesystem.txt","w");
+        FILE *f = fopen("filesystem.ext4","w+");
         fwrite(&ext4sb,sizeof(struct ext4_super_block),1,f);
         for(int i =0; i< ext4sb.s_inodes_count;i++){
                 fwrite(&arrayinodes[i],sizeof(struct inodes),1,f);
