@@ -28,7 +28,6 @@ typedef __UINT64_TYPE__ __le64;
 #define FSCREATOR 0 // linux
 
 #define SUPERBLOCKGROUP 0 // Block group # of this superblock.
-#define LAST_MOUNTED "./OS-PROJECT"
 struct ext4_super_block {
 /*00*/  __le32  s_inodes_count;         /* Inodes count */ 
         __le32  s_blocks_count_lo;      /* Blocks count */
