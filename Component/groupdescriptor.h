@@ -1,8 +1,9 @@
-#include <bits/stdc++.h>
-typedef uint32_t __le32;
-typedef uint16_t __le16;
-typedef uint8_t __u8;
-typedef uint64_t __le64;
+#ifndef GROUPDESCRIPTOR_H
+#define GROUPDESCRIPTOR_H
+typedef __UINT32_TYPE__ __le32;
+typedef __UINT16_TYPE__ __le16;
+typedef __UINT8_TYPE__ __u8;
+typedef __UINT64_TYPE__ __le64;
 struct ext4_group_desc
 {
         __le32  bg_block_bitmap_lo;     /* Blocks bitmap block */
@@ -29,3 +30,5 @@ struct ext4_group_desc
         __le16  bg_inode_bitmap_csum_hi;/* crc32c(s_uuid+grp_num+ibitmap) BE */
         __le32  bg_reserved;
 };
+
+#endif
