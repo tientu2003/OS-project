@@ -6,11 +6,10 @@ typedef __UINT16_TYPE__ __le16;
 typedef __UINT8_TYPE__ __u8;
 typedef __UINT64_TYPE__ __le64;
 
-#define INODE_COUNT_INIT 1024
+#define INODE_COUNT_INIT 256
 #define BLOCK_COUNT_INIT 1024
 #define R_BLOCK_COUNT_INIT 1024
-#define FREE_BLOCK_COUNT_INIT 1024
-#define FREE_INODE_COUNT_INIT 1024
+#define BLOCK_SIZE 4096 // 4096BYTE
 
 struct ext4_super_block {
 /*00*/  __le32  s_inodes_count;         /* Inodes count */

@@ -1,10 +1,10 @@
 #include <bits/stdc++.h>
 
-#include "ext4.h"
-
+#include <ext4.h>
+#include <inode.h>
 int main(){
-    create_ext4();
-    sync_ext4();
-
+    // ext4_initilization();
+    // create_ext4();
+    
     return 0;
 }
