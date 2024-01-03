@@ -6,23 +6,38 @@ typedef __UINT16_TYPE__ __le16;
 typedef __UINT8_TYPE__ __u8;
 typedef __UINT64_TYPE__ __le64;
 
-#define INODE_COUNT_INIT 256
+#define INODE_COUNT_INIT 208
 #define BLOCK_COUNT_INIT 1024
-#define R_BLOCK_COUNT_INIT 1024
 #define BLOCK_SIZE 4096 // 4096BYTE
+#define INODE_SIZE 256 
+#define GROUP_DESC_SIZE 64
+#define FIRST_DATABLOCK_INIT 16 
+#define FIRST_INODE_INIT 4
+#define MAGIC 0xEF53
+//superblockstate
+#define Status1 0x0001 // umounted
+#define Status2 0x0002 // Errors detected
+#define Status3 0x0004 // Orphans being recovered
+//superblock errors
+#define ERROR1 1 // continue
+#define ERROR2 2 // Remount read-only
+#define ERROR3 3 // Panic
+#define FSCREATOR 0 // linux
 
+#define SUPERBLOCKGROUP 0 // Block group # of this superblock.
+#define LAST_MOUNTED "./OS-PROJECT"
 struct ext4_super_block {
-/*00*/  __le32  s_inodes_count;         /* Inodes count */
+/*00*/  __le32  s_inodes_count;         /* Inodes count */ 
         __le32  s_blocks_count_lo;      /* Blocks count */
         __le32  s_r_blocks_count_lo;    /* Reserved blocks count */
         __le32  s_free_blocks_count_lo; /* Free blocks count */
 /*10*/  __le32  s_free_inodes_count;    /* Free inodes count */
         __le32  s_first_data_block;     /* First Data Block */
         __le32  s_log_block_size;       /* Block size */
-        __le32  s_log_cluster_size;     /* Allocation cluster size */
+        __le32  s_log_cluster_size;     /* Allocation cluster size  = block_size*/
 /*20*/  __le32  s_blocks_per_group;     /* # Blocks per group */
         __le32  s_clusters_per_group;   /* # Clusters per group */
-        __le32  s_inodes_per_group;     /* # Inodes per group */
+        __le32  s_inodes_per_group;     /* # Inodes per group  */
         __le32  s_mtime;                /* Mount time */
 /*30*/  __le32  s_wtime;                /* Write time */
         __le16  s_mnt_count;            /* Mount count */
