@@ -3,6 +3,9 @@
         "jbd2.h": "c",
         "bvec.h": "c",
         "highmem.h": "c",
-        "cacheflush.h": "c"
+        "cacheflush.h": "c",
+        "compare": "cpp",
+        "cstdint": "cpp",
+        "format": "cpp"
     }
 }
