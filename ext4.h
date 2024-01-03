@@ -10,8 +10,9 @@
 struct FILESYSTEM{
         ext4_super_block ext4sb;
         ext4_group_desc ext4gd;
-        //A
-        //
+        int inodebitmap[INODE_COUNT_INIT];
+        int datablockbitmap[BLOCK_COUNT_INIT - FIRST_DATABLOCK_INIT];
+        ext4_inode inodetable[INODE_COUNT_INIT];
 };
 
 FILESYSTEM filesystem;
@@ -41,12 +42,21 @@ bool initializeSuperBlock(){
 
 // add information for Group desciptor
 bool initializeGroupDesc(){
-
-}
+        return true;
+};
+// 
+bool initializeBitmap(){
+        return true;
+};
+//set all 
+bool initializeDataBlock(){
+        return true;
+};
 bool ext4_initilization(){
         initializeSuperBlock();
         initializeGroupDesc();
-
+        initializeBitmap();
+        initializeDataBlock();
         return true;
 };
 
