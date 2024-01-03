@@ -80,4 +80,4 @@ struct ext4_inode {
         __le32  i_projid;       /* Project ID */
 };
 
-#endif;
+#endif
