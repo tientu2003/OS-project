@@ -1,4 +1,5 @@
-#Thư mục component để lưu trữ định nghĩa các superblock, Group Desciptor,Block and Inode bitmaps, InodeTable và các giá trị init
+#Thư mục component để lưu trữ định nghĩa các superblock, Group Desciptor,Block and Inode bitmaps, InodeTable và các giá trị init 
+ko cần init toàn bộ một phần cũng được 
 
 ext4.h bây giờ sẽ tạo các API function để tạo và FILE SYSTEM OPERATION 
     Mục tiêu:
