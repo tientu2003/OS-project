@@ -6,7 +6,7 @@
 #include <superblock.h>
 
 ext4_super_block ext4sb;
-int create_ext4(){
+int ext4_initilization(){
         ext4sb.s_inodes_count = 0x102030;
         ext4sb.s_blocks_count_lo = 0x201232;
         ext4sb.s_r_blocks_count_lo = 0x302321;
@@ -14,7 +14,7 @@ int create_ext4(){
         return 0;
 }
 
-int sync_ext4(){
+int create_ext4(){
         FILE *f = fopen("filesystem.ext4","w+");
         fwrite(&ext4sb,sizeof(struct ext4_super_block),1,f);
         fclose(f);
