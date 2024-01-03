@@ -14,10 +14,13 @@ typedef __UINT64_TYPE__ __le64;
 #define FIRST_DATABLOCK_INIT 16 
 #define FIRST_INODE_INIT 4
 #define MAGIC 0xEF53
+#define BLOCKPERGROUP 8
+#define INODEPERGROUP 128
 //superblockstate
 #define Status1 0x0001 // umounted
 #define Status2 0x0002 // Errors detected
 #define Status3 0x0004 // Orphans being recovered
+
 //superblock errors
 #define ERROR1 1 // continue
 #define ERROR2 2 // Remount read-only
