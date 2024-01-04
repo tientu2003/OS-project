@@ -6,7 +6,6 @@
 #include "Component/superblock.h"
 #include "Component/groupdescriptor.h"
 #include "Component/inode.h"
-
 struct FILESYSTEM{
         ext4_super_block ext4sb;
         ext4_group_desc ext4gd;
@@ -68,5 +67,25 @@ int create_ext4(){
         fclose(f);
         return 0;
 };
+
+
+int printSuperBlock(char* file){
+        FILESYSTEM readfilesystem;
+        FILE *f = fopen(file,"r");
+        fread(&readfilesystem,sizeof(struct  FILESYSTEM),1,f);
+        
+        fclose(f);
+}
+
+int printGroupDesc(char* file){
+        FILESYSTEM readfilesystem;
+        FILE *f = fopen(file,"r");
+        fread(&readfilesystem,sizeof(struct  FILESYSTEM),1,f);
+        
+        fclose(f);
+}
+
+int printAddressOfFile()
+
 
 #endif
