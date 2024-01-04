@@ -89,5 +89,61 @@ int create_ext4(){
         fclose(f);
         return 0;
 };
+int Find_First_UnusedInode(){
+        int i=0;
+        while(i<=INODE_COUNT_INIT&&filesystem.inodebitmap[i]==0){
+                i++;
+        }
+        if(i==INODE_COUNT_INIT)return -1;
+        return i;
+
+}
+int Find_First_UnusedBlock(){
+        int i=0;
+        while(i<BLOCK_COUNT_INIT - FIRST_DATABLOCK_INIT&&filesystem.blockbitmap[i]==0){
+                i++;
+        }
+        if(i==BLOCK_COUNT_INIT - FIRST_DATABLOCK_INIT)return -1;
+        return i;
+
+}
+std::pair<int,std::vector<int>> getInodeandBlock(int size){
+        std::vector<int> Blocks;
+        int inode=Find_First_UnusedInode();
+        for(int i=0;i<size;i++){
+                int block=Find_First_UnusedBlock();
+                if(block==-1) return {-1,{-1}};
+                else Blocks.push_back(block);
+
+        }
+        return {inode,Blocks};
+}
+int create_file(){
+        int size=rand()%4;
+        std::pair<int,std::vector<int>> location=getInodeandBlock(size);
+        int inodeLo=location.first;
+        if(inodeLo==-1){
+                std::cout<<"Memory Full"<<std::endl;
+                return 0;
+        }
+        std::vector<int> Blockslo=location.second;
+        filesystem.ext4sb.s_free_blocks_count_lo -=size;
+        filesystem.ext4sb.s_free_inodes_count -=1;
+        filesystem.ext4gd.bg_free_blocks_count_lo-=size;
+        filesystem.ext4gd.bg_free_inodes_count_lo-=1;
+        for(int i=0;i<Blockslo.size();i++){
+                filesystem.blockbitmap[Blockslo[i]]=0;
+                filesystem.inodeTable[inodeLo].i_block[i]=Blockslo[i];
+        }
+        filesystem.inodebitmap[inodeLo]=0;
+        filesystem.inodeTable[inodeLo].i_mode;//ko bt tuy loai file
+        filesystem.inodeTable[inodeLo].i_size_lo=4096*size;
+        filesystem.inodeTable[inodeLo].i_links_count;  /* Links count */
+        filesystem.inodeTable[inodeLo].i_blocks_lo=size;    /* Blocks count */
+        filesystem.inodeTable[inodeLo].i_flags;        /* File flags */  
+        filesystem.DataBlocks[Blockslo[0]].data[0]=1; 
+        filesystem.DataBlocks[Blockslo[Blockslo.size()-1]].data[1023]=1;
+           
+}
 
 #endif
