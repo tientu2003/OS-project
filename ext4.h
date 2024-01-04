@@ -6,12 +6,16 @@
 #include "Component/superblock.h"
 #include "Component/groupdescriptor.h"
 #include "Component/inode.h"
+struct DataBlock{
+        int data[1024];
+};
 struct FILESYSTEM{
         ext4_super_block ext4sb;
         ext4_group_desc ext4gd;
         int inodebitmap[INODE_COUNT_INIT];
         int datablockbitmap[BLOCK_COUNT_INIT - FIRST_DATABLOCK_INIT];
         ext4_inode inodetable[INODE_COUNT_INIT];
+        DataBlock DataBlocks[BLOCK_COUNT_INIT - FIRST_DATABLOCK_INIT];
 };
 
 FILESYSTEM filesystem;
@@ -41,14 +45,30 @@ bool initializeSuperBlock(){
 
 // add information for Group desciptor
 bool initializeGroupDesc(){
+        filesystem.ext4gd.bg_block_bitmap_lo=3;     /* Blocks bitmap block */
+        filesystem.ext4gd.bg_inode_bitmap_lo=4;     /* Inodes bitmap block */
+        filesystem.ext4gd.bg_inode_table_lo=5;      /* Inodes table block */
+        filesystem.ext4gd.bg_free_blocks_count_lo=filesystem.ext4sb.s_free_blocks_count_lo;/* Free blocks count */
+        filesystem.ext4gd.bg_free_inodes_count_lo=filesystem.ext4sb.s_free_inodes_count;/* Free inodes count */
+        filesystem.ext4gd.bg_used_dirs_count_lo=0;  /* Directories count */
+        filesystem.ext4gd.bg_itable_unused_lo=204;    /* Unused inodes count */
         return true;
 };
 // 
 bool initializeBitmap(){
+        for(int i=0;i<BLOCK_COUNT_INIT - FIRST_DATABLOCK_INIT;i++){
+                filesystem.blockbitmap[i]=1;
+        }
+        for(int i=0;i<INODE_COUNT_INIT;i++){
+                filesystem.inodebitmap[i]=1;
+        }
         return true;
 };
 //set all 
 bool initializeDataBlock(){
+        for(int i=0;i<BLOCK_COUNT_INIT - FIRST_DATABLOCK_INIT;i++){
+                filesystem.DataBlocks[i]=0;
+        }
         return true;
 };
 
