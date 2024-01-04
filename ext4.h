@@ -67,7 +67,9 @@ bool initializeBitmap(){
 //set all 
 bool initializeDataBlock(){
         for(int i=0;i<BLOCK_COUNT_INIT - FIRST_DATABLOCK_INIT;i++){
-                filesystem.DataBlocks[i]=0;
+                for(int j=0;j<1024;j++){
+                        filesystem.DataBlocks[i].data[j]=0;
+                }
         }
         return true;
 };
