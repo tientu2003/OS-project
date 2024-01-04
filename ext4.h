@@ -52,7 +52,9 @@ bool initializeBitmap(){
 bool initializeDataBlock(){
         return true;
 };
-bool ext4_initilization(){
+
+// set value for filesystem 
+bool ext4_initialization(){
         initializeSuperBlock();
         initializeGroupDesc();
         initializeBitmap();

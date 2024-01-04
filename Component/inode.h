@@ -12,13 +12,6 @@ typedef __UINT32_TYPE__ __u16;
 #define EXT4_N_BLOCKS 15
 
 #define EXT4_INODE_DIRECT_BLOCK_COUNT 12
-#define EXT4_INODE_INDIRECT_BLOCK EXT4_INODE_DIRECT_BLOCK_COUNT
-#define EXT4_INODE_DOUBLE_INDIRECT_BLOCK (EXT4_INODE_INDIRECT_BLOCK + 1)
-#define EXT4_INODE_TRIPPLE_INDIRECT_BLOCK (EXT4_INODE_DOUBLE_INDIRECT_BLOCK + 1)
-#define EXT4_INODE_BLOCKS (EXT4_INODE_TRIPPLE_INDIRECT_BLOCK + 1)
-#define EXT4_INODE_INDIRECT_BLOCK_COUNT                                        \
-	(EXT4_INODE_BLOCKS - EXT4_INODE_DIRECT_BLOCK_COUNT)
-
 struct ext4_inode { 
         __le16  i_mode;         /* File mode */
         __le16  i_uid;          /* Low 16 bits of Owner Uid */
