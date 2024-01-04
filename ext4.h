@@ -68,24 +68,4 @@ int create_ext4(){
         return 0;
 };
 
-
-int printSuperBlock(char* file){
-        FILESYSTEM readfilesystem;
-        FILE *f = fopen(file,"r");
-        fread(&readfilesystem,sizeof(struct  FILESYSTEM),1,f);
-        
-        fclose(f);
-}
-
-int printGroupDesc(char* file){
-        FILESYSTEM readfilesystem;
-        FILE *f = fopen(file,"r");
-        fread(&readfilesystem,sizeof(struct  FILESYSTEM),1,f);
-        
-        fclose(f);
-}
-
-int printAddressOfFile()
-
-
 #endif
