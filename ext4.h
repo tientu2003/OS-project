@@ -57,7 +57,7 @@ bool initializeGroupDesc(){
 // 
 bool initializeBitmap(){
         for(int i=0;i<BLOCK_COUNT_INIT - FIRST_DATABLOCK_INIT;i++){
-                filesystem.blockbitmap[i]=1;
+                filesystem.datablockbitmap[i]=1;
         }
         for(int i=0;i<INODE_COUNT_INIT;i++){
                 filesystem.inodebitmap[i]=1;
