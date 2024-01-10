@@ -50,7 +50,9 @@ int main(){
                 std:: cin >> name;
                 getDataOfFile(name);
             break;
-            case 6:
+            case 6:std:: cout << "Enter FileName:";
+                std:: cin >> name;
+                printFileInfo(name);
             break;
             case 7:list_files();
             break;
