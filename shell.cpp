@@ -44,7 +44,7 @@ int main(){
             break;
             case 3:printSuperBlock("filesystem.ext4");
             break;
-            case 4:printSuperBlock("filesystem.ext4");
+            case 4:printGroupDesc("filesystem.ext4");
             break;
             case 5:std:: cout << "Enter FileName:";
                 std:: cin >> name;
