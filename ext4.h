@@ -68,19 +68,19 @@ bool initializeGroupDesc(){
 // 
 bool initializeBitmap(){
         for(int i=0;i<BLOCK_COUNT_INIT - FIRST_DATABLOCK_INIT;i++){
-                filesystem.datablockbitmap[i]=0x00000000;
+                filesystem.datablockbitmap[i]=0;
         }
         for(int i=0 ; i<12; i++){
-                filesystem.inodebitmap[i] =0xffffffff;
+                filesystem.inodebitmap[i] =1;
         }
         for(int i=12;i<INODE_COUNT_INIT;i++){
-                filesystem.inodebitmap[i]=0x00000000;
+                filesystem.inodebitmap[i]=0;
         }
         return true;
 };
 //set all 
 bool initializeDataBlock(){
-        for(int i=0;i<BLOCK_COUNT_INIT - FIRST_DATABLOCK_INIT;i++){
+        for(int i=0;i<BLOCK_COUNT_INIT - FIRST_DATABLOCK_INIT+13;i++){
                 for(int j=0;j<1024;j++){
                         filesystem.DataBlocks[i].data[j] = '0';
                 }
@@ -90,7 +90,7 @@ bool initializeDataBlock(){
 bool createRootDir(){
         for(int i = 0; i<13;i++){
                 filesystem.inodetable[2].i_block[i] = FIRST_DATABLOCK_INIT + i;
-                filesystem.datablockbitmap[FIRST_DATABLOCK_INIT+i] = 0xffffffff;
+                filesystem.datablockbitmap[FIRST_DATABLOCK_INIT+i] = 1;
                 filesystem.inodetable[2].i_links_count++;
         }
         filesystem.inodetable[2].i_mode = 0x4000; //0x4000 === dir
@@ -123,45 +123,32 @@ int create_ext4(){
 };
 
 int Find_First_UnusedInode(){
-        FILE* f = fopen("filesystem.ext4","r");
-        fread(&filesystem,sizeof(struct FILESYSTEM),1,f);
-        fclose(f);
+        // FILE* f = fopen("filesystem.ext4","r");
+        // fread(&filesystem,sizeof(struct FILESYSTEM),1,f);
         int i=0;
-        while(i<=INODE_COUNT_INIT&&filesystem.inodebitmap[i]!=0){
+        while(i<=INODE_COUNT_INIT&&filesystem.inodebitmap[i]==1){
                 i++;
         }
         if(i==INODE_COUNT_INIT)return -1;
+        // fclose(f);
         return i;
-
 }
 int Find_First_UnusedBlock(){
-        FILE* f = fopen("filesystem.ext4","r");
-        fread(&filesystem,sizeof(struct FILESYSTEM),1,f);
-        fclose(f);
+        // FILE* f = fopen("filesystem.ext4","r");
+        // fread(&filesystem,sizeof(struct FILESYSTEM),1,f);
+        
         int i=0;
-        while(i<BLOCK_COUNT_INIT - FIRST_DATABLOCK_INIT&&filesystem.datablockbitmap[i]!=0){
+        while(i<BLOCK_COUNT_INIT - FIRST_DATABLOCK_INIT&&filesystem.datablockbitmap[i]==1){
                 i++;
         }
         if(i==BLOCK_COUNT_INIT - FIRST_DATABLOCK_INIT)return -1;
+        // fclose(f);
         return i;
 
-}
-std::pair<int,std::vector<int>> getInodeandBlock(int size){
-        std::vector<int> Blocks;
-        int inode=Find_First_UnusedInode();
-        for(int i=0;i<size;i++){
-                int block=Find_First_UnusedBlock();
-                if(block==-1) return {-1,{-1}};
-                else Blocks.push_back(block);
-        }
-        return {inode,Blocks};
 }
 
 
 int Find_unusedDir_entry(){
-        FILE* f = fopen("filesystem.ext4","r");
-        fread(&filesystem,sizeof(struct FILESYSTEM),1,f);
-        fclose(f);
         int i = 0;
         while(i<208){
                 if(filesystem.dir_entry[i].inode == 0){
@@ -173,55 +160,49 @@ int Find_unusedDir_entry(){
 }
 
 int Update_Dir(char* filename, int dir_l,int inode){
-        FILE* f = fopen("filesystem.ext4","w");
-        fread(&filesystem,sizeof(struct FILESYSTEM),1,f);
         filesystem.dir_entry[dir_l].file_type = 0;
         strcpy(filesystem.dir_entry[dir_l].name,filename);
         filesystem.dir_entry[dir_l].inode = inode;
-        fwrite(&filesystem,sizeof(struct FILESYSTEM),1,f);
         filesystem.dir_entry[dir_l].name_len = strlen(filename);
-        fclose(f);
-        return 1;
+        return 0;
 }
 
 int create_file(char* filename,int size,char* data){
-        FILE* f = fopen("filesystem.ext4","rw");
+        FILE *f = fopen("filesystem.ext4","r");
         fread(&filesystem,sizeof(struct FILESYSTEM),1,f);
-    
-        std::pair<int,std::vector<int>> location=getInodeandBlock(size);
-        int inodeLo=location.first;
-        if(inodeLo==-1){
+        fclose(f);
+        int block = Find_First_UnusedBlock();
+        int inode = Find_First_UnusedInode();
+        if(inode==-1){
                 std::cout<<"Memory Full"<<std::endl;
                 return 0;
         }
-
-        std::vector<int> Blockslo=location.second;
         filesystem.ext4sb.s_free_blocks_count_lo -=size;
         filesystem.ext4sb.s_free_inodes_count -=1;
         filesystem.ext4gd.bg_free_blocks_count_lo-=size;
         filesystem.ext4gd.bg_free_inodes_count_lo-=1;
 
-        for(int i=0;i<Blockslo.size();i++){
-                filesystem.datablockbitmap[Blockslo[i]]=0xffffffff;
-                filesystem.inodetable[inodeLo].i_block[i]=Blockslo[i];
+        for(int i=0;i<size;i++){
+                filesystem.datablockbitmap[block+i]=1;
+                filesystem.inodetable[inode].i_block[i]=block+i;
         }
-        filesystem.inodebitmap[inodeLo]=0xffffffff;
+        filesystem.inodebitmap[inode]=1;
+        // std::cout << filesystem.inodebitmap[inode];
         //update dir_entry of root
         int dir_l = Find_unusedDir_entry();
-        Update_Dir(filename,dir_l,inodeLo);
+        Update_Dir(filename,dir_l,inode);
  
-        filesystem.inodetable[inodeLo].i_mode = 0x40;//ko bt tuy loai file
-        filesystem.inodetable[inodeLo].i_size_lo=4096*size;
-        filesystem.inodetable[inodeLo].i_links_count=size;  /* Links count */
-        filesystem.inodetable[inodeLo].i_blocks_lo=size;    /* Blocks count */ 
-        strcpy(filesystem.DataBlocks[Blockslo[0]].data,data); 
-        
-        strcpy(filesystem.DataBlocks[Blockslo[Blockslo.size()-1]].data,"/MarkENDFILE"); 
-        fwrite(&filesystem,sizeof(struct FILESYSTEM),1,f);
+        filesystem.inodetable[inode].i_mode = 0x40;//ko bt tuy loai file
+        filesystem.inodetable[inode].i_size_lo=4096*size;
+        filesystem.inodetable[inode].i_links_count=size;  /* Links count */
+        filesystem.inodetable[inode].i_blocks_lo=size;    /* Blocks count */ 
+        strcpy(filesystem.DataBlocks[block].data,data); 
+        strcpy(filesystem.DataBlocks[block+size-1].data,"/MarkENDFILE"); 
+        FILE *wf = fopen("filesystem.ext4","w");
+        fwrite(&filesystem,sizeof(struct FILESYSTEM),1,wf);
         fclose(f);
-        return 1;
+        return 0;
 }
-
 
 int list_files(){
         FILE *f = fopen("filesystem.ext4","r");
