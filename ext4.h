@@ -245,14 +245,34 @@ int printFileInfo(char *name){
                 int UId=filesystem.inodetable[inodenum].i_uid;
                 int Size=4*filesystem.inodetable[inodenum].i_blocks_lo;
                 int BlockCount=filesystem.inodetable[inodenum].i_blocks_lo;
+                char BlockLocation[100]="";
+                for(int i=0;i<BlockCount;i++){
+                        char blocknum[10];
+                        sprintf(blocknum,"%d",filesystem.inodetable[inodenum].i_block[i]);
+                        strcat(BlockLocation,blocknum);
+                        strcat(BlockLocation," ");
+
+                }
                 printf("-------------------------------------\n");
                 printf("         Mode       |      UID     |       Size    |       Blocks Count     |       Links Count\n");
                 printf("%20.20s        %d              %dKB                    %d                       %d\n",mode,UId,Size,BlockCount,BlockCount);
+                printf("Block Location: %s\n",BlockLocation);
+
 
         }
         return 0;
 }
+int printGroupDescrition(){
+        printf("-------------------------------------\n");
+        printf("Block Bitmap Location: %d\n",filesystem.ext4gd.bg_block_bitmap_lo);
+        printf("Inode Bitmap Location: %d\n",filesystem.ext4gd.bg_inode_bitmap_lo);
+        printf("Inode Table Location: %d->%d\n",filesystem.ext4gd.bg_inode_table_lo,15);
+        printf("Free Blocks Count: %d\n",filesystem.ext4gd.bg_free_blocks_count_lo);
+        printf("Free Inodes Count: %d\n",filesystem.ext4gd.bg_free_inodes_count_lo);
+        printf("Directory Count: %d\n",filesystem.ext4gd.bg_used_dirs_count_lo);
+        return 0;
 
+}
 int list_files(){
         FILE *f = fopen("filesystem.ext4","r");
         fread(&filesystem,sizeof(struct FILESYSTEM),1,f);
