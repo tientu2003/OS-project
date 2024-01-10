@@ -62,7 +62,6 @@ bool initializeGroupDesc(){
         filesystem.ext4gd.bg_free_blocks_count_lo=filesystem.ext4sb.s_free_blocks_count_lo;/* Free blocks count */
         filesystem.ext4gd.bg_free_inodes_count_lo=filesystem.ext4sb.s_free_inodes_count;/* Free inodes count */
         filesystem.ext4gd.bg_used_dirs_count_lo=1;  /* Directories count */
-        filesystem.ext4gd.bg_itable_unused_lo=196;    /* Unused inodes count */
         return true;
 };
 // 
@@ -146,6 +145,8 @@ int Find_First_UnusedBlock(){
         return i;
 
 }
+
+
 int Find_unusedDir_entry(){
         int i = 0;
         while(i<208){
@@ -218,6 +219,7 @@ int create_file(char* filename,int size,char* data,int mode){
         fclose(f);
         return 0;
 }
+
 int printFileInfo(char *name){
         int inodenum=0;
         for(int i=0;i<208;i++){
