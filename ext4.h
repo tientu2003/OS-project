@@ -218,6 +218,38 @@ int create_file(char* filename,int size,char* data,int mode){
         fclose(f);
         return 0;
 }
+int printFileInfo(char *name){
+        int inodenum=0;
+        for(int i=0;i<208;i++){
+                if(filesystem.dir_entry[i].inode==0) continue;
+                if(strcmp(filesystem.dir_entry[i].name,name)==0){
+                        inodenum=filesystem.dir_entry[i].inode;
+                        break;
+                }
+        }
+        if(inodenum==0){
+                std::cout<<"No file found"<<std::endl;
+                return 0;
+        }
+        else{   
+                char mode[20]="a";
+                
+                switch(int(filesystem.inodetable[inodenum].i_mode)){
+                        case 0: strcpy(mode,"No read nor Write");break;
+                        case 1: strcpy(mode,"Only read");break;
+                        case 2: strcpy(mode,"Read and Write");break;
+                        case 3: strcpy(mode,"Execute");break;
+                }
+                int UId=filesystem.inodetable[inodenum].i_uid;
+                int Size=4*filesystem.inodetable[inodenum].i_blocks_lo;
+                int BlockCount=filesystem.inodetable[inodenum].i_blocks_lo;
+                printf("-------------------------------------\n");
+                printf("         Mode       |      UID     |       Size    |       Blocks Count     |       Links Count\n");
+                printf("%20.20s        %d              %dKB                    %d                       %d\n",mode,UId,Size,BlockCount,BlockCount);
+
+        }
+        return 0;
+}
 
 int list_files(){
         FILE *f = fopen("filesystem.ext4","r");
