@@ -146,8 +146,6 @@ int Find_First_UnusedBlock(){
         return i;
 
 }
-
-
 int Find_unusedDir_entry(){
         int i = 0;
         while(i<208){
@@ -158,6 +156,17 @@ int Find_unusedDir_entry(){
         }
         return -1;
 }
+//check duplicate name
+bool checkValid(char* filename){
+        int i = 0;
+        while(i<208 && filesystem.dir_entry[i].inode != 0){
+                if(strcmp(filesystem.dir_entry[i].name,filename )== 0){
+                        return false;
+                }
+                i++;
+        }     
+        return true;
+}
 
 int Update_Dir(char* filename, int dir_l,int inode){
         filesystem.dir_entry[dir_l].file_type = 0;
@@ -167,10 +176,15 @@ int Update_Dir(char* filename, int dir_l,int inode){
         return 0;
 }
 
-int create_file(char* filename,int size,char* data){
+int create_file(char* filename,int size,char* data,int mode){
         FILE *f = fopen("filesystem.ext4","r");
         fread(&filesystem,sizeof(struct FILESYSTEM),1,f);
         fclose(f);
+        if(!checkValid(filename)){
+                printf("File name is duplicated\n");
+                printf("------------------------------\n");
+                return 0;
+        }
         int block = Find_First_UnusedBlock();
         int inode = Find_First_UnusedInode();
         if(inode==-1){
@@ -192,13 +206,14 @@ int create_file(char* filename,int size,char* data){
         int dir_l = Find_unusedDir_entry();
         Update_Dir(filename,dir_l,inode);
  
-        filesystem.inodetable[inode].i_mode = 0x40;//ko bt tuy loai file
+        filesystem.inodetable[inode].i_mode = mode;// 0: unreadable 1: only read, 2:read write, 3: executable
         filesystem.inodetable[inode].i_size_lo=4096*size;
         filesystem.inodetable[inode].i_links_count=size;  /* Links count */
         filesystem.inodetable[inode].i_blocks_lo=size;    /* Blocks count */ 
         strcpy(filesystem.DataBlocks[block].data,data); 
         strcpy(filesystem.DataBlocks[block+size-1].data,"/MarkENDFILE"); 
         FILE *wf = fopen("filesystem.ext4","w");
+
         fwrite(&filesystem,sizeof(struct FILESYSTEM),1,wf);
         fclose(f);
         return 0;
@@ -208,14 +223,28 @@ int list_files(){
         FILE *f = fopen("filesystem.ext4","r");
         fread(&filesystem,sizeof(struct FILESYSTEM),1,f);
         printf("-------------------------------------\n");
-        printf("File/Dir in /root:\n Name                 |      Inode       |        Type\n");
+        printf("File/Dir in /root:\n Name                 |      Inode       |        Type       |      Permission\n");
         for(int i = 0; i<208;i++){
                 if(filesystem.dir_entry[i].inode != 0)
                 {
+                        char per[30] ="";
+                        int mode = filesystem.inodetable[filesystem.dir_entry[i].inode].i_mode;
+                        if(mode == 0){
+                                strcpy(per,"No Permission");
+                        }else if(mode == 1){
+                                 strcpy(per,"Only Read");
+                        }else if(mode == 2){
+                                 strcpy(per,"Read and Write");
+                        }else if(mode == 3){
+                                 strcpy(per,"Execute");
+                        }
                         if(filesystem.dir_entry[i].file_type == 1){
-                                printf("/%20.20s             %d         dir\n",filesystem.dir_entry[i].name,filesystem.dir_entry[i].inode);
+                                
+                                printf("/%20.20s             %d         dir            %s\n",filesystem.dir_entry[i].name,
+                                filesystem.dir_entry[i].inode,per);
                         }else{
-                                printf("/%20.20s             %d         file\n",filesystem.dir_entry[i].name,filesystem.dir_entry[i].inode);
+                                printf("/%20.20s             %d         file           %s\n",filesystem.dir_entry[i].name,
+                                filesystem.dir_entry[i].inode,per);
                         }
                       
                 }
@@ -223,4 +252,35 @@ int list_files(){
         fclose(f);
         return 0;
 }
+
+
+
+int getDataOfFile(char* filename){
+        printf("-------------------------------------\n");
+        FILE* f = fopen("filesystem.ext4","r");
+        fread(&filesystem,sizeof(struct FILESYSTEM),1,f);
+        int i = 0;
+        while(strcmp(filename,filesystem.dir_entry[i].name) != 0 && i < 208){
+                i++;
+        }
+        if(i == 208){
+                printf("FILE NOT FOUND!!!!\n");
+                return 0;
+        }
+        int inode = filesystem.dir_entry[i].inode;
+        if(filesystem.inodetable[inode].i_mode == 0){
+                printf("Not Permission\n");
+        }else{
+                printf("Data of %s:\n",filename);
+                std:: vector<int> DataBlockIndex;
+                for (int i = 0; i< filesystem.inodetable[inode].i_blocks_lo; i++)
+                DataBlockIndex.push_back(filesystem.inodetable[inode].i_block[i]);
+                for(int j :DataBlockIndex){
+                        printf("Datablock %d: %s\n",j, filesystem.DataBlocks[j].data);
+                }
+        }
+        fclose(f);
+        return 0;
+}
+
 #endif
