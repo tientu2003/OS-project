@@ -9,7 +9,7 @@ typedef __UINT64_TYPE__ __le64;
 typedef __UINT32_TYPE__ __u32;
 typedef __UINT32_TYPE__ __u16;
 
-#define EXT4_N_BLOCKS 15
+#define EXT4_N_BLOCKS 14
 
 #define EXT4_INODE_DIRECT_BLOCK_COUNT 12
 struct ext4_inode { 
