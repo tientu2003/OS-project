@@ -37,7 +37,7 @@ bool initializeSuperBlock(){
         filesystem.ext4sb.s_blocks_count_lo = BLOCK_COUNT_INIT;
         filesystem.ext4sb.s_r_blocks_count_lo = BLOCK_COUNT_INIT/8;
         filesystem.ext4sb.s_free_blocks_count_lo = BLOCK_COUNT_INIT;
-        filesystem.ext4sb.s_free_inodes_count = INODE_COUNT_INIT;
+        filesystem.ext4sb.s_free_inodes_count = INODE_COUNT_INIT-12;
         filesystem.ext4sb.s_first_data_block = FIRST_DATABLOCK_INIT;
         filesystem.ext4sb.s_log_block_size = BLOCK_SIZE;
         filesystem.ext4sb.s_log_cluster_size = BLOCK_SIZE;
@@ -88,13 +88,13 @@ bool initializeDataBlock(){
 };
 bool createRootDir(){
         for(int i = 0; i<13;i++){
-                filesystem.inodetable[2].i_block[i] = FIRST_DATABLOCK_INIT + i;
+                filesystem.inodetable[2].i_block[i] =i;
                 filesystem.datablockbitmap[FIRST_DATABLOCK_INIT+i] = 1;
                 filesystem.inodetable[2].i_links_count++;
         }
         filesystem.inodetable[2].i_mode = 0x4000; //0x4000 === dir
         filesystem.inodetable[2].i_uid = 0;
-        filesystem.inodetable[2].i_blocks_lo = 1;
+        filesystem.inodetable[2].i_blocks_lo = 13;
         filesystem.inodetable[2].i_flags = 0x20000;
         strcpy(filesystem.dir_entry[0].name,"root");
         filesystem.dir_entry[0].name_len = 1;
@@ -248,7 +248,7 @@ int printFileInfo(char *name){
                 char BlockLocation[100]="";
                 for(int i=0;i<BlockCount;i++){
                         char blocknum[10];
-                        sprintf(blocknum,"%d",filesystem.inodetable[inodenum].i_block[i]);
+                        sprintf(blocknum,"%d",filesystem.inodetable[inodenum].i_block[i]+FIRST_DATABLOCK_INIT+13);
                         strcat(BlockLocation,blocknum);
                         strcat(BlockLocation," ");
 
@@ -263,6 +263,9 @@ int printFileInfo(char *name){
         return 0;
 }
 int printGroupDescrition(){
+        FILE* f = fopen("filesystem.ext4","r");
+        fread(&filesystem,sizeof(struct FILESYSTEM),1,f);
+        fclose(f);
         printf("-------------------------------------\n");
         printf("Block Bitmap Location: %d\n",filesystem.ext4gd.bg_block_bitmap_lo);
         printf("Inode Bitmap Location: %d\n",filesystem.ext4gd.bg_inode_bitmap_lo);
@@ -330,7 +333,7 @@ int getDataOfFile(char* filename){
                 for (int i = 0; i< filesystem.inodetable[inode].i_blocks_lo; i++)
                 DataBlockIndex.push_back(filesystem.inodetable[inode].i_block[i]);
                 for(int j :DataBlockIndex){
-                        printf("Datablock %d: %s\n",j, filesystem.DataBlocks[j].data);
+                        printf("Datablock %d: %s\n",j+FIRST_DATABLOCK_INIT+13, filesystem.DataBlocks[j].data);
                 }
         }
         fclose(f);
